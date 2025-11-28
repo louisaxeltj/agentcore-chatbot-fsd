@@ -1,9 +1,9 @@
 import json
 import re
 from config.settings import settings
-from system.read_fsd import ReadFSD
-from system.flow_tree import CodeFlowTree
-from system.compare_fsd import CompareFSD
+from agents.read_fsd import ReadFSD
+from agents.flow_tree import CodeFlowTree
+from agents.compare_fsd import CompareFSD
 from utils.app_logger import logger
 from utils.helpers import standardize, rows_to_csv_string, parse_pipe_csv
 
