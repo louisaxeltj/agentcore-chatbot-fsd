@@ -7,6 +7,8 @@ import botocore
 from botocore.exceptions import ClientError
 from botocore.config import Config
 from config.settings import settings
+from utils.app_logger import logger
+
 
 class CodeFlowTree():
     def __init__(self, codebase_data):
@@ -358,17 +360,7 @@ class CodeFlowTree():
             #     "headers": {"Content-Type": "application/json"},
             #     "body": json.dumps({"result": object_content})
             # }
-            return {
-                'status': 200,
-                'response': object_content
-            }
+            return flow_content, tree_content
         except Exception as e:
-            # return {
-            #     'statusCode': 500,
-            #     "headers": {"Content-Type": "application/json"},
-            #     "body": json.dumps({"result": str(e)})
-            # }
-            return {
-                'status': 500,
-                'response': json.dumps(str(e))
-            }
+            logger.info(f"Err : {str(e)}")
+            return "", ""

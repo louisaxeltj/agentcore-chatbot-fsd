@@ -51,7 +51,4 @@ class ReadFSD:
         content = response["Body"].read().decode("utf-8")
         # print(content)
         
-        return {
-            "status": 200,
-            'response': content
-        }
+        return content

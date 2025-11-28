@@ -4,69 +4,36 @@ from config.settings import settings
 from system.read_fsd import ReadFSD
 from system.flow_tree import CodeFlowTree
 from system.compare_fsd import CompareFSD
-
-
-def read_reqtrace_fsd(doc_id: str) -> str:
-   read_fsd = ReadFSD(doc_id=doc_id)
-
-   s3_fsd = read_fsd.get_fsd_s3()
-
-   s3_fsd_status = s3_fsd['status']
-   s3_fsd_resp = s3_fsd['response']
-
-   return s3_fsd_status, s3_fsd_resp
-
-
-def build_code_tree_and_flow(codebase_data: str) -> str:
-    code_flow_tree = CodeFlowTree(codebase_data=codebase_data)
-
-    flow_tree_res = code_flow_tree.get_flow_tree()
-
-    flow_tree_status = flow_tree_res['status']
-    flow_tree_resp = flow_tree_res['response']
-
-    return flow_tree_status, flow_tree_resp
-
-def compare_fsd_and_code(requirements: str, code_flow: str, code_tree: str) -> str:
-    compare_fsd = CompareFSD(requirements=requirements, flow=code_flow, tree=code_tree)
-
-    compare_res = compare_fsd.do_compare_fsd()
-
-    compare_status = compare_res['status']
-    compare_resp = compare_res['response']
-
-    compare_resp_flow = compare_resp['flow']
-    compare_resp_tree = compare_resp['tree']
-
-    return compare_resp_flow, compare_resp_tree
+from utils.app_logger import logger
+from utils.helpers import standardize, rows_to_csv_string, parse_pipe_csv
 
 
 def process_reqtraceai(codebase_data: str, doc_id: str):
-        
     if not doc_id:
         return None
-        # return {
-        #     "statusCode": 400,
-        #     "response": "Missing doc_id"
-        # }
     
-    requirements = read_reqtrace_fsd(doc_id=doc_id)
-    result_flow, result_tree = build_code_tree_and_flow(codebase_data=codebase_data)
+    read_fsd = ReadFSD(doc_id=doc_id)
 
-    comparison_flow, comparison_tree = compare_fsd_and_code(requirements=requirements, code_flow=result_flow, code_tree=result_tree)
+    s3_fsd = read_fsd.get_fsd_s3()
 
-    
-    # Make 
+    code_flow_tree = CodeFlowTree(codebase_data=codebase_data)
+
+    flow_res, tree_res = code_flow_tree.get_flow_tree()
+
+    compare_fsd = CompareFSD(requirements=s3_fsd, flow=flow_res, tree=tree_res)
+
+    comparison_flow, comparison_tree = compare_fsd.do_compare_fsd()
+
     try:
+        flow_result = standardize(comparison_flow)
+        tree_result = standardize(comparison_tree)
 
-        flow_result = self.standardize(compare_flow)
-        tree_result = self.standardize(compare_tree)
-        
-        file_flow = self.rows_to_csv_string(self.parse_pipe_csv(compare_flow))
-        file_tree = self.rows_to_csv_string(self.parse_pipe_csv(compare_tree))
+        file_flow = rows_to_csv_string(parse_pipe_csv(comparison_flow))
+        file_tree = rows_to_csv_string(parse_pipe_csv(comparison_tree))
+
     except Exception as e:
-        logger.info(f"Err at after Comparing : {str(e)}")
-    
+        logger.info(f"Err at Output Processing: {str(e)}")
+
     return {
         "flow_result":{
             "compare_markdown": flow_result,
