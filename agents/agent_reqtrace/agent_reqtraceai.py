@@ -1,9 +1,9 @@
 import json
 import re
 from config.settings import settings
-from agents.read_fsd import ReadFSD
-from agents.flow_tree import CodeFlowTree
-from agents.compare_fsd import CompareFSD
+from agents.agent_reqtrace.tools_reqtraceai.read_fsd import ReadFSD
+from agents.agent_reqtrace.tools_reqtraceai.flow_tree import CodeFlowTree
+from agents.agent_reqtrace.tools_reqtraceai.compare_fsd import CompareFSD
 from utils.app_logger import logger
 from utils.helpers import standardize, rows_to_csv_string, parse_pipe_csv
 
